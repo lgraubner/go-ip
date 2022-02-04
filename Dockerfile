@@ -8,7 +8,7 @@ ENV CGO_ENABLED=0 \
     GOARCH=amd64
 
 # install git, timezone data
-RUN apk update && apk add --no-cache git tzdata
+RUN apk update && apk add --no-cache git tzdata ca-certificates && update-ca-certificates
 
 RUN adduser \
     --disabled-password \
