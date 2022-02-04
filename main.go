@@ -2,25 +2,56 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"net/http"
+	"os"
 )
 
-func indexHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "GET" {
-		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
-		return
+type server struct {
+	mux *http.ServeMux
+}
+
+func newServer() (*server, error) {
+	srv := &server{
+		mux: http.NewServeMux(),
 	}
 
-	fmt.Fprintf(w, r.RemoteAddr)
+	srv.mux.HandleFunc("/", srv.indexHandler())
+
+	return srv, nil
+}
+
+func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	s.mux.ServeHTTP(w, r)
+}
+
+func (s *server) indexHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != "GET" {
+			http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
+			return
+		}
+
+		fmt.Fprintf(w, r.RemoteAddr)
+	}
+}
+
+func run(args []string) error {
+	port := 8080
+	addr := fmt.Sprintf("0.0.0.0:%d", port)
+
+	srv, err := newServer()
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("server listening on :%d\n", port)
+
+	return http.ListenAndServe(addr, srv)
 }
 
 func main() {
-	http.HandleFunc("/", indexHandler)
-
-	log.Print("Server started on port 8080")
-
-	if err := http.ListenAndServe(":8080", nil); err != nil {
-		log.Fatal(err)
+	if err := run(os.Args); err != nil {
+		fmt.Fprintf(os.Stderr, "%s\n", err)
+		os.Exit(1)
 	}
 }
