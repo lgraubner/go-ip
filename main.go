@@ -31,7 +31,13 @@ func (s *server) indexHandler() http.HandlerFunc {
 			return
 		}
 
-		fmt.Fprintf(w, r.RemoteAddr)
+		ip := r.Header.Get("X-Forwarded-For")
+
+		if ip == "" {
+			ip = r.RemoteAddr
+		}
+
+		fmt.Fprintf(w, ip)
 	}
 }
 
