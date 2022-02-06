@@ -8,7 +8,7 @@ ENV CGO_ENABLED=0 \
     GOARCH=amd64
 
 # install git, timezone data
-RUN apk update && apk add --no-cache git tzdata ca-certificates && update-ca-certificates
+RUN apk update && apk add --no-cache git tzdata ca-certificates
 
 RUN adduser \
     --disabled-password \
@@ -21,11 +21,11 @@ WORKDIR /src
 
 # use hack for possible non existent go.sum
 # https://stackoverflow.com/a/46801962
-COPY ./go.mod ./go.sum* .
+COPY ./go.mod ./go.sum* ./
 
 RUN go mod download
 
-COPY . .
+COPY . ./
 
 RUN go test -v
 
