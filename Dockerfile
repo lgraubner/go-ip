@@ -43,6 +43,4 @@ COPY --from=builder /bin/app /bin/app
 
 USER nonroot:nonroot
 
-EXPOSE 8080
-
 ENTRYPOINT ["/bin/app"]
